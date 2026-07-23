@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       email: user.email,
       role: user.role,
       shopId: user.shopId,
-      permissions: user.permissions,
+      permissions: Array.from(user.permissions ?? [], String),
     });
 
     const response = NextResponse.json({ ok: true });
