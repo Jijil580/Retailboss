@@ -27,9 +27,10 @@ export async function connectMongo() {
   if (cache.connection) return cache.connection;
 
   cache.promise ??= mongoose.connect(MONGODB_URI, {
-    dbName: MONGODB_DB,
+    dbName: MONGODB_DB.trim(),
     bufferCommands: false,
     maxPoolSize: 10,
+    serverSelectionTimeoutMS: 8_000,
   });
 
   try {
