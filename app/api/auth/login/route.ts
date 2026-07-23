@@ -59,7 +59,23 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7,
     });
     return response;
-  } catch {
-    return NextResponse.json({ error: "Sign-in service is unavailable" }, { status: 503 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    const name = error instanceof Error ? error.name : "UnknownError";
+    const category = /SESSION_SECRET/i.test(message)
+      ? "session_configuration"
+      : /E11000|duplicate key/i.test(message)
+        ? "account_conflict"
+        : /Mongo|server selection|buffering timed out/i.test(`${name} ${message}`)
+          ? "database"
+          : /bcrypt|Illegal arguments/i.test(message)
+            ? "password_service"
+            : "unknown";
+
+    console.error("RetailBoss login failure", { name, category });
+    return NextResponse.json(
+      { error: "Sign-in service is unavailable", category },
+      { status: 503 },
+    );
   }
 }
