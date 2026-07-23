@@ -1,20 +1,26 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
+import { RegisterServiceWorker } from "./register-service-worker";
 import "./globals.css";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const metadataBase = new URL(`${protocol}://${host}`);
+export function generateMetadata(): Metadata {
   const description =
     "A modern retail operations dashboard for sales, inventory, customers, purchases, expenses, and reporting.";
+  const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (productionHost ? `https://${productionHost}` : "http://localhost:3000");
 
   return {
-    metadataBase,
+    metadataBase: new URL(siteUrl),
     title: "RetailBoss — Retail Management, Simplified",
     description,
     applicationName: "RetailBoss",
+    manifest: "/manifest.webmanifest",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: "RetailBoss",
+    },
     openGraph: {
       title: "RetailBoss — Retail Management, Simplified",
       description,
@@ -37,7 +43,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <RegisterServiceWorker />
+      </body>
     </html>
   );
 }

@@ -43,6 +43,7 @@ import {
   WalletCards,
   X,
   Zap,
+  type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -57,7 +58,17 @@ const chartData = [
   { day: "29", sales: 128000, profit: 48000 },
 ];
 
-const navGroups = [
+type NavigationGroup = {
+  label: string;
+  items: Array<{
+    label: string;
+    icon: LucideIcon;
+    hot?: boolean;
+    count?: string;
+  }>;
+};
+
+const navGroups: NavigationGroup[] = [
   {
     label: "WORKSPACE",
     items: [
