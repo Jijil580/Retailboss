@@ -102,6 +102,7 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
 .metric-value-row > span { display: flex; align-items: center; gap: 2px; font-size: 9px; font-weight: 700; }
 .metric-value-row .up { color: #179467; }
 .metric-value-row .down { color: #e1684a; }
+.metric-value-row .neutral { color: var(--muted); }
 .metric-card > small { display: block; margin-top: 8px; color: var(--muted-2); font-size: 9px; }
 
 .workspace-grid { margin-bottom: 20px; display: grid; grid-template-columns: minmax(0, 2fr) minmax(270px, .88fr); gap: 13px; }
@@ -173,6 +174,10 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
 .stock-number.out { color: #d34b61; background: #fde8ec; }
 .alert-count { padding: 4px 7px; color: #d34b61; background: #fde8ec; border-radius: 9px; font-size: 8px; font-weight: 700; }
 .stock-cta { width: 100%; height: 32px; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 4px; color: var(--primary); background: var(--primary-soft); border: 0; border-radius: 8px; font-size: 9px; font-weight: 700; cursor: pointer; }
+.empty-list { min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--muted-2); text-align: center; }
+.empty-list strong { color: var(--text); font-size: 11px; }
+.empty-list span { font-size: 9px; }
+.compact-empty { min-height: 190px; }
 
 .modal-backdrop, .drawer-backdrop { position: fixed; z-index: 50; inset: 0; display: flex; background: rgba(16,17,28,.48); backdrop-filter: blur(3px); }
 .modal-backdrop { align-items: flex-start; justify-content: center; padding-top: 11vh; }
@@ -212,6 +217,9 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
 .qty button { width: 23px; height: 23px; padding: 0; background: var(--panel-soft); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
 .qty span { font-size: 10px; }
 .add-line { width: 100%; height: 34px; margin-top: 9px; display: flex; align-items: center; justify-content: center; gap: 5px; color: var(--primary); background: transparent; border: 1px dashed #bcb4ef; border-radius: 8px; font-size: 9px; font-weight: 700; cursor: pointer; }
+.empty-bill { min-height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; color: var(--muted-2); border-block: 1px solid var(--line); text-align: center; }
+.empty-bill strong { color: var(--text); font-size: 11px; }
+.empty-bill span { font-size: 9px; }
 .bill-summary { margin-top: 20px; padding: 14px; background: var(--panel-soft); border-radius: 11px; }
 .bill-summary > div { min-height: 27px; display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 10px; }
 .bill-summary button { color: var(--primary); background: none; border: 0; font-size: 9px; font-weight: 700; }
@@ -222,6 +230,7 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
 .payment-types button { height: 42px; display: flex; align-items: center; justify-content: center; gap: 5px; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 9px; font-size: 9px; cursor: pointer; }
 .payment-types button.active { color: var(--primary); background: var(--primary-soft); border-color: #bdb4f2; font-weight: 700; }
 .complete-sale { width: 100%; height: 46px; display: flex; align-items: center; justify-content: center; gap: 7px; color: white; background: var(--primary); border: 0; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 9px 20px rgba(105,87,232,.25); }
+.complete-sale:disabled { color: var(--muted); background: var(--panel-soft); border: 1px solid var(--line); box-shadow: none; cursor: not-allowed; }
 .drawer-note { margin-top: 9px; color: var(--muted); font-size: 8.5px; text-align: center; }
 .toast { position: fixed; z-index: 80; right: 24px; bottom: 24px; padding: 11px 15px 11px 10px; display: flex; align-items: center; gap: 9px; color: white; background: #242536; border-radius: 10px; box-shadow: 0 16px 40px rgba(0,0,0,.22); font-size: 10px; animation: toastIn .25s ease; }
 .toast span { width: 25px; height: 25px; display: grid; place-items: center; background: var(--primary); border-radius: 7px; }
