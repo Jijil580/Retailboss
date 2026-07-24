@@ -26,6 +26,7 @@ function productFields(body: Record<string, unknown>) {
     barcode: String(body.barcode ?? "").trim() || undefined,
     category: String(body.category ?? "").trim(),
     brand: String(body.brand ?? "").trim(),
+    imageUrl: String(body.imageUrl ?? "").trim(),
     purchasePrice: cleanNumber(body.purchasePrice),
     sellingPrice: cleanNumber(body.sellingPrice),
     wholesalePrice: cleanNumber(body.wholesalePrice),

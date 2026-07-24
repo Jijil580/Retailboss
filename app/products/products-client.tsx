@@ -6,6 +6,7 @@ import {
   Box,
   Camera,
   Edit3,
+  ImagePlus,
   PackagePlus,
   Plus,
   Printer,
@@ -24,6 +25,7 @@ type ProductRecord = {
   barcode?: string;
   category?: string;
   brand?: string;
+  imageUrl?: string;
   purchasePrice: number;
   sellingPrice: number;
   currentStock: number;
@@ -47,6 +49,7 @@ const emptyProduct: Partial<ProductRecord> = {
   barcode: "",
   category: "",
   brand: "",
+  imageUrl: "",
   purchasePrice: 0,
   sellingPrice: 0,
   currentStock: 0,
@@ -248,6 +251,38 @@ export default function ProductsClient({ canManage }: { canManage: boolean }) {
     setPrintProduct(product);
   }
 
+  function chooseProductImage(file?: File) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please choose an image file.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setError("Product image must be smaller than 8 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const source = String(reader.result ?? "");
+      const image = new Image();
+      image.onload = () => {
+        const maxSide = 900;
+        const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        canvas.getContext("2d")?.drawImage(image, 0, 0, canvas.width, canvas.height);
+        setEditing((current) => ({
+          ...current,
+          imageUrl: canvas.toDataURL("image/jpeg", 0.78),
+        }));
+        setError("");
+      };
+      image.src = source;
+    };
+    reader.readAsDataURL(file);
+  }
+
   function printBarcodes() {
     document.body.classList.add("barcode-printing");
     const cleanup = () => document.body.classList.remove("barcode-printing");
@@ -288,7 +323,7 @@ export default function ProductsClient({ canManage }: { canManage: boolean }) {
                 const isLow = product.currentStock <= product.minimumStock;
                 return (
                   <article key={product._id}>
-                    <div className="product-name-cell"><span><Box size={18} /></span><div><strong>{product.name}</strong><small>{product.sku}{product.barcode ? ` · ${product.barcode}` : ""}</small></div></div>
+                    <div className="product-name-cell"><span>{product.imageUrl ? <img src={product.imageUrl} alt="" /> : <Box size={18} />}</span><div><strong>{product.name}</strong><small>{product.sku}{product.barcode ? ` · ${product.barcode}` : ""}</small></div></div>
                     <span>{product.category || "Uncategorized"}<small>{product.brand || "No brand"}</small></span>
                     <strong>₹{product.sellingPrice.toLocaleString("en-IN")}<small>Cost ₹{product.purchasePrice.toLocaleString("en-IN")}</small></strong>
                     <strong>{product.currentStock} {product.unit}<small>Minimum {product.minimumStock}</small></strong>
@@ -306,6 +341,16 @@ export default function ProductsClient({ canManage }: { canManage: boolean }) {
           <form className="product-form" onSubmit={saveProduct} onMouseDown={(event) => event.stopPropagation()}>
             <div className="user-form-head"><div><span>{editing._id ? "EDIT PRODUCT" : "NEW PRODUCT"}</span><h2>{editing._id ? "Update product" : "Add a product"}</h2></div><button type="button" onClick={() => setFormOpen(false)}><X size={19} /></button></div>
             <div className="form-grid">
+              <label className="wide product-image-field">
+                Product image
+                <span className="product-image-picker">
+                  <span className="product-image-preview">{editing.imageUrl ? <img src={editing.imageUrl} alt="Product preview" /> : <ImagePlus size={25} />}</span>
+                  <span><strong>{editing.imageUrl ? "Change product photo" : "Add product photo"}</strong><small>Choose from camera, gallery, or computer</small></span>
+                  <input type="file" accept="image/*" onChange={(event) => chooseProductImage(event.target.files?.[0])} />
+                </span>
+                <input type="hidden" name="imageUrl" value={editing.imageUrl ?? ""} />
+                {editing.imageUrl && <button className="remove-product-image" type="button" onClick={() => setEditing((current) => ({ ...current, imageUrl: "" }))}>Remove image</button>}
+              </label>
               <label className="wide">Product name<input name="name" defaultValue={editing.name} required placeholder="e.g. Cotton Shirt" /></label>
               <label>SKU<input name="sku" defaultValue={editing.sku} required placeholder="SH-001" /></label>
               <label className="barcode-field">Barcode

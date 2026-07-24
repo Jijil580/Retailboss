@@ -27,6 +27,7 @@ type ProductRecord = {
   name: string;
   sku: string;
   barcode?: string;
+  imageUrl?: string;
   purchasePrice: number;
   taxPercent: number;
   unit: string;
@@ -385,8 +386,11 @@ export default function PurchasesClient() {
                       <span className="purchase-product-suggestions">
                         {matchingProducts(item.productQuery).length ? matchingProducts(item.productQuery).map((product) => (
                           <button type="button" key={product._id} onClick={() => chooseProduct(index, product._id)}>
+                            <span className="purchase-suggestion-image">{product.imageUrl ? <img src={product.imageUrl} alt="" /> : product.name.slice(0, 1).toUpperCase()}</span>
+                            <span>
                             <strong>{product.name}</strong>
                             <small>{product.sku}{product.barcode ? ` · ${product.barcode}` : ""}</small>
+                            </span>
                           </button>
                         )) : <em>No matching product</em>}
                       </span>

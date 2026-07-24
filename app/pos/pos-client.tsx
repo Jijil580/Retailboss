@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, CheckCircle2, Minus, Plus, ReceiptText, Search, ShoppingCart, Trash2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Minus, Plus, ReceiptText, ScanLine, ShoppingCart, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DEFAULT_SHOP_SETTINGS } from "@/lib/shop-settings";
 
@@ -9,6 +9,7 @@ type ProductRecord = {
   name: string;
   sku: string;
   category?: string;
+  imageUrl?: string;
   sellingPrice: number;
   currentStock: number;
   unit: string;
@@ -133,14 +134,18 @@ export default function PosClient() {
       </header>
       <div className="pos-layout">
         <section className="pos-products">
-          <div className="pos-heading"><div><span>POINT OF SALE</span><h1>Create a sale</h1></div><label className="data-search"><Search size={17} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search products, SKU or category" autoFocus /></label></div>
+          <div className="mobile-pos-summary">
+            <div><span>NEW SALE</span><strong><ShoppingCart size={15} /> {cart.reduce((sum, item) => sum + item.quantity, 0)} items</strong></div>
+            <b>₹{total.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</b>
+          </div>
+          <div className="pos-heading"><div><span>POINT OF SALE</span><h1>Create a sale</h1></div><label className="data-search"><ScanLine size={17} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Scan barcode or search product" autoFocus /></label></div>
           {loading ? <div className="data-empty">Loading products...</div> : filtered.length === 0 ? (
             <div className="data-empty"><ShoppingCart size={32} /><strong>No sellable products</strong><span>Add products with available stock first.</span><a href="/products">Go to products</a></div>
           ) : (
             <div className="pos-product-grid">
               {filtered.map((product) => (
                 <button key={product._id} onClick={() => addProduct(product)}>
-                  <span className="pos-product-icon">{product.name.slice(0, 1).toUpperCase()}</span>
+                  <span className="pos-product-icon">{product.imageUrl ? <img src={product.imageUrl} alt="" /> : product.name.slice(0, 1).toUpperCase()}</span>
                   <span><strong>{product.name}</strong><small>{product.sku} · {product.currentStock} {product.unit} available</small></span>
                   <strong>₹{product.sellingPrice.toLocaleString("en-IN")}</strong>
                   <Plus size={16} />
@@ -157,6 +162,7 @@ export default function PosClient() {
             <div className="cart-items">
               {cart.map((item) => (
                 <article key={item._id}>
+                  <span className="cart-product-image">{item.imageUrl ? <img src={item.imageUrl} alt="" /> : item.name.slice(0, 1).toUpperCase()}</span>
                   <div><strong>{item.name}</strong><small>₹{item.sellingPrice.toLocaleString("en-IN")} each</small></div>
                   <div className="cart-qty"><button onClick={() => changeQuantity(item._id, -1)}><Minus size={13} /></button><span>{item.quantity}</span><button onClick={() => changeQuantity(item._id, 1)}><Plus size={13} /></button></div>
                   <strong>₹{(item.sellingPrice * item.quantity).toLocaleString("en-IN")}</strong>
