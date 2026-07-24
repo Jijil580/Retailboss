@@ -16,7 +16,7 @@ type SaleRecord = {
   customer?: { name?: string; mobile?: string };
 };
 
-export default function SalesClient() {
+export default function SalesClient({ isAdmin }: { isAdmin: boolean }) {
   const [sales, setSales] = useState<SaleRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -69,7 +69,7 @@ export default function SalesClient() {
     <main className="workspace-page">
       <header className="workspace-topbar"><a href="/"><ArrowLeft size={18} /> Dashboard</a><div className="workspace-brand"><span>S</span> Shape of You</div><a href="/pos" className="topbar-action"><Plus size={16} /> New sale</a></header>
       <section className="workspace-content">
-        <div className="workspace-heading"><div><span>SALES HISTORY</span><h1>Sales</h1><p>Review completed bills and payment status.</p></div><a className="primary-btn" href="/pos"><Plus size={17} /> New sale</a></div>
+        <div className="workspace-heading"><div><span>SALES HISTORY</span><h1>Sales</h1><p>{isAdmin ? "Review all sales by date, month, customer, product and payment status." : "Your sales created today. Previous dates are available only to administrators."}</p></div><a className="primary-btn" href="/pos"><Plus size={17} /> New sale</a></div>
         <div className="workspace-stats">
           <article><ReceiptIndianRupee size={20} /><div><strong>{sales.length}</strong><span>Total invoices</span></div></article>
           <article><span className="rupee-icon">₹</span><div><strong>₹{sales.reduce((sum, sale) => sum + sale.total, 0).toLocaleString("en-IN")}</strong><span>Total sales</span></div></article>
@@ -79,9 +79,9 @@ export default function SalesClient() {
         <section className="data-card">
           <div className="data-toolbar"><div><h2>Invoices</h2><span>{filtered.length} of {sales.length} records</span></div><label className="data-search"><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Invoice, product, customer or mobile" /></label></div>
           <div className="sales-filters">
-            <label><CalendarDays size={15} /><span>Month</span><input type="month" value={month} onChange={(event) => { setMonth(event.target.value); setFromDate(""); setToDate(""); }} /></label>
-            <label><span>From</span><input type="date" value={fromDate} onChange={(event) => { setFromDate(event.target.value); setMonth(""); }} /></label>
-            <label><span>To</span><input type="date" value={toDate} min={fromDate} onChange={(event) => { setToDate(event.target.value); setMonth(""); }} /></label>
+            {isAdmin && <label><CalendarDays size={15} /><span>Month</span><input type="month" value={month} onChange={(event) => { setMonth(event.target.value); setFromDate(""); setToDate(""); }} /></label>}
+            {isAdmin && <label><span>From</span><input type="date" value={fromDate} onChange={(event) => { setFromDate(event.target.value); setMonth(""); }} /></label>}
+            {isAdmin && <label><span>To</span><input type="date" value={toDate} min={fromDate} onChange={(event) => { setToDate(event.target.value); setMonth(""); }} /></label>}
             <label><span>Payment</span><select value={payment} onChange={(event) => setPayment(event.target.value)}><option value="">All</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option><option value="bank">Bank</option><option value="credit">Credit</option></select></label>
             <label><span>Status</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="">All</option><option value="paid">Paid</option><option value="partial">Partial</option><option value="credit">Credit</option><option value="cancelled">Cancelled</option><option value="returned">Returned</option></select></label>
             {(search || month || fromDate || toDate || payment || status) && <button onClick={() => { setSearch(""); setMonth(""); setFromDate(""); setToDate(""); setPayment(""); setStatus(""); }}><RotateCcw size={14} /> Clear filters</button>}

@@ -72,15 +72,25 @@ export async function POST(request: NextRequest) {
   }
   const body = (await request.json()) as Record<string, unknown>;
   const supplierId = String(body.supplierId ?? "");
+  const newSupplier =
+    typeof body.newSupplier === "object" && body.newSupplier !== null
+      ? (body.newSupplier as Record<string, unknown>)
+      : null;
+  const newSupplierName = String(newSupplier?.name ?? "").trim().slice(0, 120);
+  const newSupplierPhone = String(newSupplier?.phone ?? "")
+    .replace(/[^\d+]/g, "")
+    .slice(0, 16);
   const requestedItems = Array.isArray(body.items) ? body.items : [];
   const paymentMode = ["cash", "upi", "card", "bank", "credit"].includes(
     String(body.paymentMode),
   )
     ? String(body.paymentMode)
     : "cash";
-  if (!Types.ObjectId.isValid(supplierId) || requestedItems.length === 0) {
+  const hasExistingSupplier = Types.ObjectId.isValid(supplierId);
+  const hasNewSupplier = Boolean(newSupplierName && newSupplierPhone);
+  if ((!hasExistingSupplier && !hasNewSupplier) || requestedItems.length === 0) {
     return NextResponse.json(
-      { error: "Choose a supplier and add at least one product" },
+      { error: "Choose a supplier or enter new supplier details, then add a product" },
       { status: 400 },
     );
   }
@@ -90,11 +100,33 @@ export async function POST(request: NextRequest) {
   try {
     let createdPurchase: unknown;
     await transaction.withTransaction(async () => {
-      const supplier = await Supplier.findOne({
-        _id: supplierId,
-        shopId: user.shopId,
-        active: true,
-      }).session(transaction);
+      let supplier = hasExistingSupplier
+        ? await Supplier.findOne({
+            _id: supplierId,
+            shopId: user.shopId,
+            active: true,
+          }).session(transaction)
+        : null;
+      if (!supplier && hasNewSupplier) {
+        const createdSuppliers = await Supplier.create(
+          [
+            {
+              shopId: user.shopId,
+              name: newSupplierName,
+              contactPerson: String(newSupplier?.contactPerson ?? "").trim().slice(0, 100),
+              phone: newSupplierPhone,
+              email: String(newSupplier?.email ?? "").trim().toLowerCase().slice(0, 120),
+              gstNumber: String(newSupplier?.gstNumber ?? "").trim().toUpperCase().slice(0, 15),
+              address: String(newSupplier?.address ?? "").trim().slice(0, 240),
+              city: String(newSupplier?.city ?? "").trim().slice(0, 80),
+              state: String(newSupplier?.state ?? "").trim().slice(0, 80),
+              pincode: String(newSupplier?.pincode ?? "").trim().slice(0, 12),
+            },
+          ],
+          { session: transaction },
+        );
+        supplier = createdSuppliers[0];
+      }
       if (!supplier) throw new Error("SUPPLIER_NOT_FOUND");
 
       const ids = requestedItems.map((item: Record<string, unknown>) =>

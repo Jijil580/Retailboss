@@ -100,6 +100,14 @@ type DashboardSale = {
   customer?: { name?: string; mobile?: string };
 };
 
+type DashboardExpense = {
+  _id: string;
+  amount: number;
+  expenseDate: string;
+  category: string;
+  paidTo: string;
+};
+
 const stock: Array<{
   name: string;
   sku: string;
@@ -132,16 +140,21 @@ export default function DashboardClient({
   const [searchOpen, setSearchOpen] = useState(false);
   const [toast, setToast] = useState("");
   const [sales, setSales] = useState<DashboardSale[]>([]);
+  const [expenses, setExpenses] = useState<DashboardExpense[]>([]);
   const [salesLoading, setSalesLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/sales?limit=1000").then(async (response) => {
-      if (response.status === 401) {
+    Promise.all([fetch("/api/sales?limit=1000"), fetch("/api/expenses")]).then(async ([salesResponse, expenseResponse]) => {
+      if (salesResponse.status === 401) {
         window.location.href = "/login";
         return;
       }
-      const result = await response.json();
-      setSales(result.sales ?? []);
+      const [salesResult, expenseResult] = await Promise.all([
+        salesResponse.json(),
+        expenseResponse.ok ? expenseResponse.json() : Promise.resolve({ expenses: [] }),
+      ]);
+      setSales(salesResult.sales ?? []);
+      setExpenses(expenseResult.expenses ?? []);
       setSalesLoading(false);
     }).catch(() => setSalesLoading(false));
   }, []);
@@ -176,11 +189,13 @@ export default function DashboardClient({
   const today = new Date().toDateString();
   const todaySales = sales.filter((sale) => new Date(sale.createdAt).toDateString() === today);
   const todayRevenue = todaySales.reduce((sum, sale) => sum + sale.total, 0);
-  const todayItems = todaySales.reduce(
-    (sum, sale) => sum + sale.items.reduce((count, item) => count + item.quantity, 0),
-    0,
-  );
   const totalRangeSales = rangeSales.reduce((sum, sale) => sum + sale.total, 0);
+  const rangeExpenses = expenses.filter((expense) => new Date(expense.expenseDate) >= rangeStart);
+  const todayExpenses = expenses.filter(
+    (expense) => new Date(expense.expenseDate).toDateString() === today,
+  );
+  const totalRangeExpenses = rangeExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const todayExpenseTotal = todayExpenses.reduce((sum, expense) => sum + expense.amount, 0);
   const rangePending = rangeSales.reduce((sum, sale) => sum + sale.pending, 0);
   const rangePaid = rangeSales.reduce((sum, sale) => sum + sale.paid, 0);
   const recentSales = sales.slice(0, 5);
@@ -193,17 +208,20 @@ export default function DashboardClient({
       sales: sales
         .filter((sale) => new Date(sale.createdAt).toDateString() === key)
         .reduce((sum, sale) => sum + sale.total, 0),
+      expenses: expenses
+        .filter((expense) => new Date(expense.expenseDate).toDateString() === key)
+        .reduce((sum, expense) => sum + expense.amount, 0),
     };
   });
 
   const metricCards = useMemo(
     () => [
       { label: "Today’s sales", value: `₹${todayRevenue.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`, change: `${todaySales.length}`, trend: "neutral", detail: `${todaySales.length} invoice${todaySales.length === 1 ? "" : "s"} today`, icon: CircleDollarSign, tone: "violet" },
-      { label: "Items sold today", value: String(todayItems), change: `${todaySales.length}`, trend: "neutral", detail: "Across today’s completed bills", icon: ShoppingBag, tone: "green" },
+      { label: "Today’s expenses", value: `₹${todayExpenseTotal.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`, change: `${todayExpenses.length}`, trend: "neutral", detail: `${todayExpenses.length} expense entr${todayExpenses.length === 1 ? "y" : "ies"} today`, icon: ReceiptIndianRupee, tone: "green" },
       { label: `${range} revenue`, value: `₹${totalRangeSales.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`, change: `${rangeSales.length}`, trend: "neutral", detail: `${rangeSales.length} invoice${rangeSales.length === 1 ? "" : "s"} in this period`, icon: BarChart3, tone: "blue" },
       { label: "Customer dues", value: `₹${rangePending.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`, change: "", trend: "neutral", detail: "Outstanding in selected period", icon: ReceiptIndianRupee, tone: "orange" },
     ],
-    [todayRevenue, todaySales.length, todayItems, range, totalRangeSales, rangeSales.length, rangePending],
+    [todayRevenue, todaySales.length, todayExpenseTotal, todayExpenses.length, range, totalRangeSales, rangeSales.length, rangePending],
   );
 
   const navigate = (label: string) => {
@@ -221,6 +239,10 @@ export default function DashboardClient({
     }
     if (label === "Suppliers") {
       window.location.href = "/suppliers";
+      return;
+    }
+    if (label === "Expenses") {
+      window.location.href = "/expenses";
       return;
     }
     if (label === "Users & access") {
@@ -344,7 +366,7 @@ export default function DashboardClient({
                   </div>
                   <div className="chart-summary">
                     <div><span className="legend sales-legend" />Sales <strong>₹{totalRangeSales.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</strong></div>
-                    <div><span className="legend profit-legend" />Paid <strong>₹{rangePaid.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</strong></div>
+                    <div><span className="legend profit-legend" />Expenses <strong>₹{totalRangeExpenses.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</strong></div>
                     <span className="growth">{rangeSales.length ? `${rangeSales.length} invoices` : "No activity yet"}</span>
                   </div>
                   <div className="chart-wrap">
@@ -361,6 +383,7 @@ export default function DashboardClient({
                         <YAxis tickFormatter={formatCompact} axisLine={false} tickLine={false} tick={{ fill: "var(--muted)", fontSize: 11 }} />
                         <Tooltip contentStyle={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 12, color: "var(--text)" }} formatter={(value) => [`₹${Number(value).toLocaleString("en-IN")}`]} />
                         <Area type="monotone" dataKey="sales" stroke="#7467f0" strokeWidth={3} fill="url(#salesFill)" />
+                        <Area type="monotone" dataKey="expenses" stroke="#e47945" strokeWidth={2.5} fill="transparent" strokeDasharray="5 4" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
@@ -382,7 +405,7 @@ export default function DashboardClient({
                   </div>
                   <div className="dues-grid">
                     <div><span>Customer dues</span><strong>₹{rangePending.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</strong><small>{rangeSales.filter((sale) => sale.pending > 0).length} invoices</small></div>
-                    <div><span>Total collected</span><strong>₹{rangePaid.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</strong><small>{rangeSales.length} invoices</small></div>
+                    <div><span>Net after expenses</span><strong>₹{(rangePaid - totalRangeExpenses).toLocaleString("en-IN", { maximumFractionDigits: 2 })}</strong><small>Collected minus expenses</small></div>
                   </div>
                 </article>
               </section>
@@ -393,7 +416,7 @@ export default function DashboardClient({
                   {quickActions.map((action) => {
                     const Icon = action.icon;
                     return (
-                      <button key={action.label} onClick={() => action.label === "New sale" ? window.location.href = "/pos" : action.label === "Add product" ? window.location.href = "/products" : action.label === "New purchase" ? window.location.href = "/purchases" : setToast(`${action.label} form opened`)}>
+                      <button key={action.label} onClick={() => action.label === "New sale" ? window.location.href = "/pos" : action.label === "Add product" ? window.location.href = "/products" : action.label === "New purchase" ? window.location.href = "/purchases" : action.label === "Add expense" ? window.location.href = "/expenses" : setToast(`${action.label} form opened`)}>
                         <span className={`quick-icon ${action.color}`}><Icon size={19} /></span>
                         <span><strong>{action.label}</strong><small>{action.hint}</small></span>
                         <ChevronRight size={16} />

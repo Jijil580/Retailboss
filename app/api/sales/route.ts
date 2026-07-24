@@ -5,6 +5,7 @@ import { connectMongo } from "@/lib/mongodb";
 import { Product } from "@/models/Product";
 import { Sale } from "@/models/Sale";
 import { ShopSettings } from "@/models/ShopSettings";
+import { getIndiaTodayRange } from "@/lib/date-range";
 import {
   cleanShopSettings,
   DEFAULT_SHOP_SETTINGS,
@@ -37,12 +38,26 @@ export async function GET(request: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   await connectMongo();
+  const staffFilter =
+    session.role === "admin"
+      ? {}
+      : {
+          createdBy: new Types.ObjectId(session.id),
+          createdAt: {
+            $gte: getIndiaTodayRange().start,
+            $lte: getIndiaTodayRange().end,
+          },
+        };
   const id = request.nextUrl.searchParams.get("id");
   if (id) {
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
-    const sale = await Sale.findOne({ _id: id, shopId: session.shopId }).lean();
+    const sale = await Sale.findOne({
+      _id: id,
+      shopId: session.shopId,
+      ...staffFilter,
+    }).lean();
     if (!sale) return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     return NextResponse.json({ sale });
   }
@@ -82,6 +97,7 @@ export async function GET(request: NextRequest) {
   }
   const sales = await Sale.find({
     shopId: session.shopId,
+    ...staffFilter,
     ...(filters.length ? { $and: filters } : {}),
   })
     .sort({ createdAt: -1 })

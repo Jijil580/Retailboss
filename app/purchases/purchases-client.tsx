@@ -74,6 +74,17 @@ export default function PurchasesClient() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [supplierId, setSupplierId] = useState("");
+  const [newSupplier, setNewSupplier] = useState({
+    name: "",
+    contactPerson: "",
+    phone: "",
+    email: "",
+    gstNumber: "",
+    address: "",
+    city: "",
+    state: "Karnataka",
+    pincode: "",
+  });
   const [supplierBillNumber, setSupplierBillNumber] = useState("");
   const [purchaseDate, setPurchaseDate] = useState(todayValue());
   const [paymentMode, setPaymentMode] = useState("cash");
@@ -145,15 +156,12 @@ export default function PurchasesClient() {
   }, [purchases, search, month, filterSupplier, filterStatus]);
 
   function openPurchase() {
-    if (suppliers.length === 0) {
-      setError("Add a supplier before creating a purchase.");
-      return;
-    }
     if (products.length === 0) {
       setError("Add a product before creating a purchase.");
       return;
     }
-    setSupplierId("");
+    setSupplierId(suppliers.length ? "" : "__new__");
+    setNewSupplier({ name: "", contactPerson: "", phone: "", email: "", gstNumber: "", address: "", city: "", state: "Karnataka", pincode: "" });
     setSupplierBillNumber("");
     setPurchaseDate(todayValue());
     setPaymentMode("cash");
@@ -195,6 +203,7 @@ export default function PurchasesClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         supplierId,
+        newSupplier: supplierId === "__new__" ? newSupplier : undefined,
         supplierBillNumber,
         purchaseDate,
         paymentMode,
@@ -306,10 +315,26 @@ export default function PurchasesClient() {
           <form className="purchase-form" onSubmit={savePurchase} onMouseDown={(event) => event.stopPropagation()}>
             <div className="user-form-head"><div><span>NEW PURCHASE</span><h2>Record supplier bill</h2></div><button type="button" onClick={() => setFormOpen(false)}><X size={19} /></button></div>
             <div className="purchase-meta-grid">
-              <label>Supplier<select value={supplierId} onChange={(event) => setSupplierId(event.target.value)} required><option value="">Choose supplier</option>{suppliers.map((supplier) => <option value={supplier._id} key={supplier._id}>{supplier.name} · {supplier.phone}</option>)}</select></label>
+              <label>Supplier<select value={supplierId} onChange={(event) => setSupplierId(event.target.value)} required><option value="">Choose supplier</option>{suppliers.map((supplier) => <option value={supplier._id} key={supplier._id}>{supplier.name} · {supplier.phone}</option>)}<option value="__new__">+ Add new supplier</option></select></label>
               <label>Supplier bill number<input value={supplierBillNumber} onChange={(event) => setSupplierBillNumber(event.target.value)} placeholder="Optional" /></label>
               <label>Purchase date<input type="date" value={purchaseDate} onChange={(event) => setPurchaseDate(event.target.value)} required /></label>
             </div>
+            {supplierId === "__new__" && (
+              <div className="inline-supplier-form">
+                <div><strong>New supplier details</strong><small>The supplier will be saved automatically with this purchase.</small></div>
+                <div className="purchase-meta-grid">
+                  <label>Supplier name<input value={newSupplier.name} onChange={(event) => setNewSupplier((current) => ({ ...current, name: event.target.value }))} required /></label>
+                  <label>Phone<input value={newSupplier.phone} onChange={(event) => setNewSupplier((current) => ({ ...current, phone: event.target.value }))} required inputMode="tel" /></label>
+                  <label>Contact person<input value={newSupplier.contactPerson} onChange={(event) => setNewSupplier((current) => ({ ...current, contactPerson: event.target.value }))} /></label>
+                  <label>Email<input type="email" value={newSupplier.email} onChange={(event) => setNewSupplier((current) => ({ ...current, email: event.target.value }))} /></label>
+                  <label>GSTIN<input value={newSupplier.gstNumber} onChange={(event) => setNewSupplier((current) => ({ ...current, gstNumber: event.target.value.toUpperCase() }))} maxLength={15} /></label>
+                  <label>Address<input value={newSupplier.address} onChange={(event) => setNewSupplier((current) => ({ ...current, address: event.target.value }))} /></label>
+                  <label>City<input value={newSupplier.city} onChange={(event) => setNewSupplier((current) => ({ ...current, city: event.target.value }))} /></label>
+                  <label>State<input value={newSupplier.state} onChange={(event) => setNewSupplier((current) => ({ ...current, state: event.target.value }))} /></label>
+                  <label>PIN code<input value={newSupplier.pincode} onChange={(event) => setNewSupplier((current) => ({ ...current, pincode: event.target.value }))} /></label>
+                </div>
+              </div>
+            )}
             <div className="purchase-items-head"><div><strong>Products</strong><small>Stock increases after saving.</small></div><button type="button" onClick={() => setItems((current) => [...current, emptyItem()])}><Plus size={14} /> Add row</button></div>
             <div className="purchase-item-rows">
               {items.map((item, index) => (

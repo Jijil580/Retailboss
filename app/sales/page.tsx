@@ -5,5 +5,5 @@ import SalesClient from "./sales-client";
 export default async function SalesPage() {
   const session = await getSession();
   if (!session) redirect("/login");
-  return <SalesClient />;
+  return <SalesClient isAdmin={session.role === "admin"} />;
 }
