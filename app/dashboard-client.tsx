@@ -200,13 +200,13 @@ export default function DashboardClient({
       <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="brand">
           <span className="brand-mark"><Sparkles size={20} strokeWidth={2.5} /></span>
-          <span>Retail<span>Boss</span></span>
+          <span>Shape of <span>You</span></span>
           <button className="mobile-close" onClick={() => setMenuOpen(false)} aria-label="Close navigation"><X size={20} /></button>
         </div>
 
         <div className="shop-switcher">
           <div className="shop-avatar"><Store size={18} /></div>
-          <div><strong>Urban Thread</strong><small>Clothing · Bengaluru</small></div>
+          <div><strong>Shape of You</strong><small>Women’s Fashion · Bengaluru</small></div>
           <ChevronDown size={16} />
         </div>
 
@@ -234,7 +234,7 @@ export default function DashboardClient({
         </nav>
 
         <div className="sidebar-footer">
-          <button className="nav-item"><Settings size={18} /><span>Shop settings</span></button>
+          <button className="nav-item" onClick={() => { window.location.href = "/settings"; }}><Settings size={18} /><span>Company & billing</span></button>
           <div className="profile">
             <div className="avatar">{currentUser.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</div>
             <div><strong>{currentUser.name}</strong><small>{currentUser.role === "admin" ? "Administrator" : "Staff user"}</small></div>
@@ -267,8 +267,8 @@ export default function DashboardClient({
           <section className="welcome">
             <div>
               <div className="eyebrow"><Zap size={13} fill="currentColor" /> THURSDAY, 23 JULY</div>
-              <h1>{active === "Overview" ? "Good afternoon, Arjun" : active}</h1>
-              <p>{active === "Overview" ? "Here’s what’s happening at Urban Thread today." : `Manage your ${active.toLowerCase()} from one focused workspace.`}</p>
+              <h1>{active === "Overview" ? `Welcome, ${currentUser.name.split(" ")[0]}` : active}</h1>
+              <p>{active === "Overview" ? "Here’s what’s happening at Shape of You today." : `Manage your ${active.toLowerCase()} from one focused workspace.`}</p>
             </div>
             <div className="period-control">
               {["Today", "7 days", "30 days"].map((item) => (

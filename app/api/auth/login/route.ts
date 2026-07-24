@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     if (!user && email === bootstrapEmail && bootstrapPassword && password === bootstrapPassword) {
       user = await User.create({
         shopId: SHOP_ID,
-        name: "RetailBoss Admin",
+        name: "Shape of You Admin",
         email,
         passwordHash: await hash(password, 12),
         role: "admin",
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
             ? "password_service"
             : "unknown";
 
-    console.error("RetailBoss login failure", { name, category });
+    console.error("Shape of You login failure", { name, category });
     return NextResponse.json(
       { error: "Sign-in service is unavailable", category },
       { status: 503 },

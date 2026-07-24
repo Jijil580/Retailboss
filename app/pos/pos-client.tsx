@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowLeft, CheckCircle2, Minus, Plus, Search, ShoppingCart, Trash2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Minus, Plus, ReceiptText, Search, ShoppingCart, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { DEFAULT_SHOP_SETTINGS } from "@/lib/shop-settings";
 
 type ProductRecord = {
   _id: string;
@@ -11,6 +12,7 @@ type ProductRecord = {
   sellingPrice: number;
   currentStock: number;
   unit: string;
+  taxPercent: number;
 };
 
 type CartItem = ProductRecord & { quantity: number };
@@ -24,15 +26,24 @@ export default function PosClient() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [invoiceId, setInvoiceId] = useState("");
+  const [settings, setSettings] = useState(DEFAULT_SHOP_SETTINGS);
 
   const loadProducts = useCallback(async () => {
-    const response = await fetch("/api/products");
+    const [response, settingsResponse] = await Promise.all([
+      fetch("/api/products"),
+      fetch("/api/settings"),
+    ]);
     if (response.status === 401) {
       window.location.href = "/login";
       return;
     }
     const result = await response.json();
     setProducts(result.products ?? []);
+    if (settingsResponse.ok) {
+      const settingsResult = await settingsResponse.json();
+      setSettings(settingsResult.settings);
+    }
     setLoading(false);
   }, []);
 
@@ -48,10 +59,23 @@ export default function PosClient() {
     );
   }, [products, search]);
 
-  const total = cart.reduce((sum, item) => sum + item.sellingPrice * item.quantity, 0);
+  const subtotal = cart.reduce((sum, item) => sum + item.sellingPrice * item.quantity, 0);
+  const tax = settings.gstEnabled
+    ? cart.reduce(
+        (sum, item) =>
+          sum +
+          (item.sellingPrice *
+            item.quantity *
+            (item.taxPercent || settings.defaultTaxPercent)) /
+            100,
+        0,
+      )
+    : 0;
+  const total = subtotal + tax;
 
   function addProduct(product: ProductRecord) {
     setSuccess("");
+    setInvoiceId("");
     setError("");
     setCart((current) => {
       const existing = current.find((item) => item._id === product._id);
@@ -90,6 +114,7 @@ export default function PosClient() {
     }
     setCart([]);
     setSuccess(`Sale ${result.sale.invoiceNumber} completed successfully`);
+    setInvoiceId(result.sale._id);
     await loadProducts();
   }
 
@@ -97,7 +122,7 @@ export default function PosClient() {
     <main className="pos-page">
       <header className="workspace-topbar">
         <a href="/"><ArrowLeft size={18} /> Dashboard</a>
-        <div className="workspace-brand"><span>R</span> RetailBoss POS</div>
+        <div className="workspace-brand"><span>S</span> Shape of You POS</div>
         <a href="/sales" className="topbar-action">Sales history</a>
       </header>
       <div className="pos-layout">
@@ -136,10 +161,19 @@ export default function PosClient() {
           )}
           <div className="cart-bottom">
             <label>Payment method<select value={paymentMode} onChange={(event) => setPaymentMode(event.target.value)}><option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option><option value="bank">Bank transfer</option><option value="credit">Credit</option></select></label>
-            <div className="cart-total"><span>Total</span><strong>₹{total.toLocaleString("en-IN")}</strong></div>
+            <div className="bill-mode-row">
+              <span>{settings.gstEnabled ? "GST invoice" : "Non-GST bill"}</span>
+              <a href="/settings">Customize</a>
+            </div>
+            <div className="cart-breakdown">
+              <span>Subtotal<strong>₹{subtotal.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</strong></span>
+              {settings.gstEnabled && <span>GST<strong>₹{tax.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</strong></span>}
+            </div>
+            <div className="cart-total"><span>Total</span><strong>₹{total.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</strong></div>
             {error && <div className="login-error">{error}</div>}
             {success && <div className="sale-success"><CheckCircle2 size={16} />{success}</div>}
-            <button className="complete-sale" disabled={cart.length === 0 || saving} onClick={completeSale}>{saving ? "Completing..." : `Complete sale · ₹${total.toLocaleString("en-IN")}`}</button>
+            {invoiceId && <a className="view-invoice-btn" href={`/invoice/${invoiceId}`}><ReceiptText size={15} /> View & print invoice</a>}
+            <button className="complete-sale" disabled={cart.length === 0 || saving} onClick={completeSale}>{saving ? "Completing..." : `Complete sale · ₹${total.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`}</button>
           </div>
         </aside>
       </div>

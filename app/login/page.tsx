@@ -36,12 +36,12 @@ export default function LoginPage() {
       <section className="login-brand-panel">
         <div className="login-brand">
           <span><Sparkles size={22} /></span>
-          Retail<span>Boss</span>
+          Shape of <span>You</span>
         </div>
         <div className="login-message">
           <div className="login-badge"><ShieldCheck size={15} /> SECURE WORKSPACE</div>
-          <h1>Your shop,<br />under control.</h1>
-          <p>One protected workspace for your team, operations, and business data.</p>
+          <h1>Style,<br />beautifully managed.</h1>
+          <p>One protected workspace for your women’s fashion brand, team, and billing.</p>
         </div>
         <small>Encrypted sessions · Role-based access · MongoDB Atlas</small>
       </section>
@@ -50,7 +50,7 @@ export default function LoginPage() {
         <form className="login-card" onSubmit={handleSubmit}>
           <div className="login-icon"><LockKeyhole size={23} /></div>
           <h2>Welcome back</h2>
-          <p>Sign in to continue to RetailBoss.</p>
+          <p>Sign in to continue to Shape of You.</p>
 
           <label>
             Email address

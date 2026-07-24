@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Plus, ReceiptIndianRupee, Search } from "lucide-react";
+import { ArrowLeft, Eye, Plus, ReceiptIndianRupee, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 type SaleRecord = {
@@ -47,7 +47,7 @@ export default function SalesClient() {
 
   return (
     <main className="workspace-page">
-      <header className="workspace-topbar"><a href="/"><ArrowLeft size={18} /> Dashboard</a><div className="workspace-brand"><span>R</span> RetailBoss</div><a href="/pos" className="topbar-action"><Plus size={16} /> New sale</a></header>
+      <header className="workspace-topbar"><a href="/"><ArrowLeft size={18} /> Dashboard</a><div className="workspace-brand"><span>S</span> Shape of You</div><a href="/pos" className="topbar-action"><Plus size={16} /> New sale</a></header>
       <section className="workspace-content">
         <div className="workspace-heading"><div><span>SALES HISTORY</span><h1>Sales</h1><p>Review completed bills and payment status.</p></div><a className="primary-btn" href="/pos"><Plus size={17} /> New sale</a></div>
         <div className="workspace-stats">
@@ -68,6 +68,7 @@ export default function SalesClient() {
                   <span className="role-chip staff">{sale.paymentMode}</span>
                   <span className={sale.status === "paid" ? "account-status active" : "account-status"}>{sale.status}</span>
                   <strong>₹{sale.total.toLocaleString("en-IN")}</strong>
+                  <a className="invoice-view-link" href={`/invoice/${sale._id}`} aria-label={`View ${sale.invoiceNumber}`}><Eye size={15} /></a>
                 </article>
               ))}
             </div>

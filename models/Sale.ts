@@ -8,8 +8,26 @@ const SaleItemSchema = new Schema(
     quantity: { type: Number, required: true, min: 1 },
     unitPrice: { type: Number, required: true, min: 0 },
     discount: { type: Number, default: 0, min: 0 },
+    taxPercent: { type: Number, default: 0, min: 0 },
     tax: { type: Number, default: 0, min: 0 },
     total: { type: Number, required: true, min: 0 },
+  },
+  { _id: false },
+);
+
+const SellerSnapshotSchema = new Schema(
+  {
+    brandName: { type: String, required: true },
+    legalName: { type: String, default: "" },
+    address: { type: String, default: "" },
+    city: { type: String, default: "" },
+    state: { type: String, default: "" },
+    pincode: { type: String, default: "" },
+    phone: { type: String, default: "" },
+    email: { type: String, default: "" },
+    gstNumber: { type: String, default: "" },
+    gstEnabled: { type: Boolean, default: false },
+    invoiceFooter: { type: String, default: "" },
   },
   { _id: false },
 );
@@ -31,6 +49,7 @@ const SaleSchema = new Schema(
       enum: ["cash", "upi", "card", "bank", "credit"],
       required: true,
     },
+    seller: { type: SellerSnapshotSchema, required: true },
     status: {
       type: String,
       enum: ["paid", "partial", "credit", "cancelled", "returned"],

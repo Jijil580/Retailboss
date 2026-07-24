@@ -4,6 +4,11 @@ import { getSession } from "@/lib/auth";
 import { connectMongo } from "@/lib/mongodb";
 import { Product } from "@/models/Product";
 import { Sale } from "@/models/Sale";
+import { ShopSettings } from "@/models/ShopSettings";
+import {
+  cleanShopSettings,
+  DEFAULT_SHOP_SETTINGS,
+} from "@/lib/shop-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +18,7 @@ type ComputedSaleItem = {
   quantity: number;
   unitPrice: number;
   discount: number;
+  taxPercent: number;
   tax: number;
   total: number;
 };
@@ -23,10 +29,23 @@ async function requireSalesUser() {
   return session.role === "admin" || session.permissions.includes("create_sales") ? session : null;
 }
 
-export async function GET() {
+function roundMoney(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+export async function GET(request: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   await connectMongo();
+  const id = request.nextUrl.searchParams.get("id");
+  if (id) {
+    if (!Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    }
+    const sale = await Sale.findOne({ _id: id, shopId: session.shopId }).lean();
+    if (!sale) return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    return NextResponse.json({ sale });
+  }
   const sales = await Sale.find({ shopId: session.shopId })
     .sort({ createdAt: -1 })
     .limit(200)
@@ -53,6 +72,12 @@ export async function POST(request: NextRequest) {
   try {
     let createdSale: unknown;
     await transaction.withTransaction(async () => {
+      const storedSettings = await ShopSettings.findOne({ shopId: user.shopId })
+        .session(transaction)
+        .lean();
+      const settings = storedSettings
+        ? cleanShopSettings(storedSettings as unknown as Record<string, unknown>)
+        : DEFAULT_SHOP_SETTINGS;
       const ids = requestedItems.map((item: { productId: string }) => item.productId);
       const products = await Product.find({
         _id: { $in: ids },
@@ -67,14 +92,20 @@ export async function POST(request: NextRequest) {
         if (!product) throw new Error("PRODUCT_NOT_FOUND");
         if (product.currentStock < quantity) throw new Error(`INSUFFICIENT_STOCK:${product.name}`);
         const unitPrice = Number(product.sellingPrice);
-        const total = unitPrice * quantity;
+        const lineSubtotal = roundMoney(unitPrice * quantity);
+        const taxPercent = settings.gstEnabled
+          ? Number(product.taxPercent) || settings.defaultTaxPercent
+          : 0;
+        const tax = roundMoney((lineSubtotal * taxPercent) / 100);
+        const total = roundMoney(lineSubtotal + tax);
         return {
           productId: product._id,
           name: product.name,
           quantity,
           unitPrice,
           discount: 0,
-          tax: 0,
+          taxPercent,
+          tax,
           total,
         };
       });
@@ -92,10 +123,19 @@ export async function POST(request: NextRequest) {
         if (update.modifiedCount !== 1) throw new Error(`INSUFFICIENT_STOCK:${item.name}`);
       }
 
-      const subtotal = items.reduce((sum: number, item: ComputedSaleItem) => sum + item.total, 0);
-      const total = subtotal;
+      const subtotal = roundMoney(
+        items.reduce(
+          (sum: number, item: ComputedSaleItem) =>
+            sum + item.unitPrice * item.quantity - item.discount,
+          0,
+        ),
+      );
+      const tax = roundMoney(
+        items.reduce((sum: number, item: ComputedSaleItem) => sum + item.tax, 0),
+      );
+      const total = roundMoney(subtotal + tax);
       const paid = paymentMode === "credit" ? 0 : total;
-      const invoiceNumber = `INV-${Date.now().toString().slice(-9)}`;
+      const invoiceNumber = `${settings.billPrefix}-${Date.now().toString().slice(-9)}`;
       const records = await Sale.create(
         [
           {
@@ -104,12 +144,25 @@ export async function POST(request: NextRequest) {
             items,
             subtotal,
             discount: 0,
-            tax: 0,
+            tax,
             total,
             paid,
             pending: total - paid,
             paymentMode,
             status: paymentMode === "credit" ? "credit" : "paid",
+            seller: {
+              brandName: settings.brandName,
+              legalName: settings.legalName,
+              address: settings.address,
+              city: settings.city,
+              state: settings.state,
+              pincode: settings.pincode,
+              phone: settings.phone,
+              email: settings.email,
+              gstNumber: settings.gstNumber,
+              gstEnabled: settings.gstEnabled,
+              invoiceFooter: settings.invoiceFooter,
+            },
             createdBy: new Types.ObjectId(user.id),
           },
         ],

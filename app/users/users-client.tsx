@@ -109,7 +109,7 @@ export default function UsersClient({
     <main className="users-page">
       <header className="users-topbar">
         <a href="/"><ArrowLeft size={18} /> Dashboard</a>
-        <div className="users-brand"><span>R</span> RetailBoss</div>
+        <div className="users-brand"><span>S</span> Shape of You</div>
         <div className="users-profile">
           <span><strong>{currentUser.name}</strong><small>{currentUser.email}</small></span>
           <button onClick={logout} aria-label="Log out"><LogOut size={17} /></button>
@@ -121,7 +121,7 @@ export default function UsersClient({
           <div>
             <span className="users-eyebrow"><ShieldCheck size={14} /> ADMIN ACCESS</span>
             <h1>Users & access</h1>
-            <p>Create accounts and control who can access your RetailBoss workspace.</p>
+            <p>Create accounts and control who can access your Shape of You workspace.</p>
           </div>
           <button className="primary-btn" onClick={() => setFormOpen(true)}><UserPlus size={17} /> Add user</button>
         </div>

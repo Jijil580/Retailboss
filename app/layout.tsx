@@ -4,7 +4,7 @@ import "./globals.css";
 
 export function generateMetadata(): Metadata {
   const description =
-    "A modern retail operations dashboard for sales, inventory, customers, purchases, expenses, and reporting.";
+    "Shape of You women’s fashion retail management for products, inventory, sales, and billing.";
   const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
@@ -12,26 +12,24 @@ export function generateMetadata(): Metadata {
 
   return {
     metadataBase: new URL(siteUrl),
-    title: "RetailBoss — Retail Management, Simplified",
+    title: "Shape of You — Women’s Fashion",
     description,
-    applicationName: "RetailBoss",
+    applicationName: "Shape of You",
     manifest: "/manifest.webmanifest",
     appleWebApp: {
       capable: true,
       statusBarStyle: "default",
-      title: "RetailBoss",
+      title: "Shape of You",
     },
     openGraph: {
-      title: "RetailBoss — Retail Management, Simplified",
+      title: "Shape of You — Women’s Fashion",
       description,
       type: "website",
-      images: [{ url: "/og.png", width: 1680, height: 945, alt: "RetailBoss retail operations dashboard" }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "RetailBoss — Retail Management, Simplified",
+      title: "Shape of You — Women’s Fashion",
       description,
-      images: ["/og.png"],
     },
   };
 }

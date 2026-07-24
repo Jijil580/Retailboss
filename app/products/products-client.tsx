@@ -131,7 +131,7 @@ export default function ProductsClient({ canManage }: { canManage: boolean }) {
     <main className="workspace-page">
       <header className="workspace-topbar">
         <a href="/"><ArrowLeft size={18} /> Dashboard</a>
-        <div className="workspace-brand"><span>R</span> RetailBoss</div>
+        <div className="workspace-brand"><span>S</span> Shape of You</div>
         <a href="/pos" className="topbar-action"><Plus size={16} /> New sale</a>
       </header>
       <section className="workspace-content">
@@ -180,7 +180,7 @@ export default function ProductsClient({ canManage }: { canManage: boolean }) {
               <label className="wide">Product name<input name="name" defaultValue={editing.name} required placeholder="e.g. Cotton Shirt" /></label>
               <label>SKU<input name="sku" defaultValue={editing.sku} required placeholder="SH-001" /></label>
               <label>Barcode<input name="barcode" defaultValue={editing.barcode} placeholder="Optional" /></label>
-              <label>Category<input name="category" defaultValue={editing.category} placeholder="Clothing" /></label>
+              <label>Category<input name="category" defaultValue={editing.category} placeholder="Women’s wear" /></label>
               <label>Brand<input name="brand" defaultValue={editing.brand} placeholder="Brand name" /></label>
               <label>Purchase price<input name="purchasePrice" type="number" min="0" step="0.01" defaultValue={editing.purchasePrice} required /></label>
               <label>Selling price<input name="sellingPrice" type="number" min="0.01" step="0.01" defaultValue={editing.sellingPrice} required /></label>
