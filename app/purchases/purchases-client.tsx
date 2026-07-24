@@ -26,6 +26,7 @@ type ProductRecord = {
   _id: string;
   name: string;
   sku: string;
+  barcode?: string;
   purchasePrice: number;
   taxPercent: number;
   unit: string;
@@ -33,6 +34,7 @@ type ProductRecord = {
 
 type PurchaseItemInput = {
   productId: string;
+  productQuery: string;
   quantity: number;
   unitCost: number;
   taxPercent: number;
@@ -59,6 +61,7 @@ type PurchaseRecord = {
 const todayValue = () => new Date().toISOString().slice(0, 10);
 const emptyItem = (): PurchaseItemInput => ({
   productId: "",
+  productQuery: "",
   quantity: 1,
   unitCost: 0,
   taxPercent: 0,
@@ -185,15 +188,28 @@ export default function PurchasesClient() {
     const product = products.find((entry) => entry._id === productId);
     updateItem(index, {
       productId,
+      productQuery: product ? `${product.name} · ${product.sku}` : "",
       unitCost: product?.purchasePrice || 0,
       taxPercent: product?.taxPercent || 0,
     });
   }
 
+  function matchingProducts(query: string) {
+    const value = query.toLowerCase().trim();
+    if (!value) return [];
+    return products
+      .filter((product) =>
+        [product.name, product.sku, product.barcode]
+          .filter(Boolean)
+          .some((field) => String(field).toLowerCase().includes(value)),
+      )
+      .slice(0, 6);
+  }
+
   async function savePurchase(event: FormEvent) {
     event.preventDefault();
     if (items.some((item) => !item.productId)) {
-      setError("Select a product for every purchase row.");
+      setError("Type and choose a matching product for every purchase row.");
       return;
     }
     setSaving(true);
@@ -339,7 +355,43 @@ export default function PurchasesClient() {
             <div className="purchase-item-rows">
               {items.map((item, index) => (
                 <div className="purchase-item-row" key={index}>
-                  <label>Product<select value={item.productId} onChange={(event) => chooseProduct(index, event.target.value)} required><option value="">Select product</option>{products.map((product) => <option value={product._id} key={product._id}>{product.name} · {product.sku}</option>)}</select></label>
+                  <label className="purchase-product-search">Product
+                    <input
+                      value={item.productQuery}
+                      onChange={(event) => {
+                        const query = event.target.value;
+                        const exact = products.find((product) =>
+                          [product.name, product.sku, product.barcode]
+                            .filter(Boolean)
+                            .some((field) => String(field).toLowerCase() === query.trim().toLowerCase()),
+                        );
+                        if (exact) chooseProduct(index, exact._id);
+                        else updateItem(index, { productQuery: query, productId: "" });
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" && !item.productId) {
+                          const match = matchingProducts(item.productQuery)[0];
+                          if (match) {
+                            event.preventDefault();
+                            chooseProduct(index, match._id);
+                          }
+                        }
+                      }}
+                      placeholder="Type product name, SKU or barcode"
+                      autoComplete="off"
+                      required
+                    />
+                    {!item.productId && item.productQuery.trim() && (
+                      <span className="purchase-product-suggestions">
+                        {matchingProducts(item.productQuery).length ? matchingProducts(item.productQuery).map((product) => (
+                          <button type="button" key={product._id} onClick={() => chooseProduct(index, product._id)}>
+                            <strong>{product.name}</strong>
+                            <small>{product.sku}{product.barcode ? ` · ${product.barcode}` : ""}</small>
+                          </button>
+                        )) : <em>No matching product</em>}
+                      </span>
+                    )}
+                  </label>
                   <label>Qty<input type="number" min="1" step="1" value={item.quantity} onChange={(event) => updateItem(index, { quantity: Math.max(1, Number(event.target.value)) })} /></label>
                   <label>Unit cost<input type="number" min="0.01" step="0.01" value={item.unitCost} onChange={(event) => updateItem(index, { unitCost: Number(event.target.value) })} /></label>
                   <label>Tax %<input type="number" min="0" max="100" step="0.01" value={item.taxPercent} onChange={(event) => updateItem(index, { taxPercent: Number(event.target.value) })} /></label>
