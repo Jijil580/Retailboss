@@ -352,7 +352,7 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
 .users-loading, .users-empty { min-height: 240px; display: flex; align-items: center; justify-content: center; color: #8c8e9d; font-size: 10px; }
 .users-empty { flex-direction: column; gap: 7px; }
 .users-empty strong { color: #282a39; font-size: 11px; }
-.users-list article { min-height: 66px; display: grid; grid-template-columns: auto minmax(160px, 1.4fr) 80px 80px minmax(100px, 1fr) 76px; align-items: center; gap: 12px; border-top: 1px solid #ececf1; }
+.users-list article { min-height: 66px; display: grid; grid-template-columns: auto minmax(160px, 1.4fr) 80px 80px minmax(100px, 1fr) 112px; align-items: center; gap: 12px; border-top: 1px solid #ececf1; }
 .user-list-avatar { width: 36px; height: 36px; display: grid; place-items: center; color: #5c4ed0; background: #eeeafd; border-radius: 10px; font-size: 10px; font-weight: 800; }
 .user-list-name strong, .user-list-name small { display: block; }
 .user-list-name strong { font-size: 10.5px; }
@@ -365,6 +365,12 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
 .user-permission-summary { color: #7d7e8e; font-size: 9px; }
 .user-toggle { padding: 6px 8px; color: #666879; background: #fff; border: 1px solid #e2e3e9; border-radius: 7px; font-size: 8px; cursor: pointer; }
 .user-toggle:disabled { opacity: .4; cursor: not-allowed; }
+.user-actions { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
+.user-edit { width: 29px; height: 29px; display: grid; place-items: center; color: var(--primary); background: var(--primary-soft); border: 0; border-radius: 7px; cursor: pointer; }
+.password-edit-heading { margin: 5px 0 14px; padding: 10px; display: flex; align-items: center; gap: 8px; color: var(--primary); background: var(--primary-soft); border-radius: 8px; }
+.password-edit-heading strong, .password-edit-heading small { display: block; }
+.password-edit-heading strong { color: #343546; font-size: 9.5px; }
+.password-edit-heading small { margin-top: 3px; color: #7f8090; font-size: 8px; }
 .user-form { width: min(92vw, 500px); max-height: 90vh; padding: 24px; overflow-y: auto; align-self: center; margin: auto; background: #fff; border-radius: 16px; box-shadow: 0 25px 70px rgba(12,13,25,.26); }
 .user-form-head { margin-bottom: 21px; display: flex; align-items: flex-start; justify-content: space-between; }
 .user-form-head span { color: var(--primary); font-size: 8px; font-weight: 800; letter-spacing: 1px; }
@@ -403,7 +409,7 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
   .users-list article { padding: 12px 0; grid-template-columns: auto 1fr auto; }
   .role-chip { grid-column: 3; grid-row: 1; }
   .account-status, .user-permission-summary { grid-column: 2; }
-  .user-toggle { grid-column: 3; grid-row: 2; }
+  .user-actions { grid-column: 3; grid-row: 2; }
   .permission-grid { grid-template-columns: 1fr; }
 }
 
@@ -413,7 +419,7 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
   .users-heading .primary-btn { width: 100%; margin-top: 18px; }
   .users-table-card { padding: 14px; }
   .users-list article { grid-template-columns: auto 1fr; }
-  .role-chip, .account-status, .user-permission-summary, .user-toggle { grid-column: 2; grid-row: auto; }
+  .role-chip, .account-status, .user-permission-summary, .user-actions { grid-column: 2; grid-row: auto; justify-content: flex-start; }
 }
 
 /* Products, inventory, POS and sales */

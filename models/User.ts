@@ -22,6 +22,7 @@ const UserSchema = new Schema(
       default: [],
     },
     active: { type: Boolean, default: true },
+    bootstrapVersion: { type: String, default: "" },
     lastLoginAt: { type: Date },
   },
   { timestamps: true },

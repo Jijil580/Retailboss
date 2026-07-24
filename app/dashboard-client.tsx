@@ -24,6 +24,7 @@ import {
   Grid2X2,
   HandCoins,
   LayoutDashboard,
+  LogOut,
   Menu,
   Moon,
   PackagePlus,
@@ -258,6 +259,11 @@ export default function DashboardClient({
     if (label !== "Overview") setToast(`${label} module is ready for your data`);
   };
 
+  const logout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/login";
+  };
+
   return (
     <div className={dark ? "app dark" : "app"}>
       <aside className={menuOpen ? "sidebar open" : "sidebar"}>
@@ -298,6 +304,7 @@ export default function DashboardClient({
 
         <div className="sidebar-footer">
           <button className="nav-item" onClick={() => { window.location.href = "/settings"; }}><Settings size={18} /><span>Company & billing</span></button>
+          <button className="nav-item" onClick={logout}><LogOut size={18} /><span>Log out</span></button>
           <div className="profile">
             <div className="avatar">{currentUser.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</div>
             <div><strong>{currentUser.name}</strong><small>{currentUser.role === "admin" ? "Administrator" : "Staff user"}</small></div>

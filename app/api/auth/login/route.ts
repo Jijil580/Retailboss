@@ -21,17 +21,34 @@ export async function POST(request: NextRequest) {
 
     const bootstrapEmail = (process.env.ADMIN_EMAIL ?? "admin@retailboss.app").toLowerCase();
     const bootstrapPassword = process.env.ADMIN_PASSWORD;
+    const bootstrapVersion = process.env.ADMIN_PASSWORD_VERSION ?? "initial";
 
-    if (!user && email === bootstrapEmail && bootstrapPassword && password === bootstrapPassword) {
-      user = await User.create({
-        shopId: SHOP_ID,
-        name: "Shape of You Admin",
-        email,
-        passwordHash: await hash(password, 12),
-        role: "admin",
-        permissions: [],
-        active: true,
-      });
+    const validBootstrapLogin =
+      email === bootstrapEmail &&
+      Boolean(bootstrapPassword) &&
+      password === bootstrapPassword;
+
+    if (validBootstrapLogin) {
+      if (!user) {
+        user = await User.create({
+          shopId: SHOP_ID,
+          name: "Shape of You Admin",
+          email,
+          passwordHash: await hash(password, 12),
+          role: "admin",
+          permissions: [],
+          active: true,
+          bootstrapVersion,
+        });
+      } else if (
+        user.role === "admin" &&
+        user.bootstrapVersion !== bootstrapVersion
+      ) {
+        user.passwordHash = await hash(password, 12);
+        user.active = true;
+        user.bootstrapVersion = bootstrapVersion;
+        await user.save();
+      }
     }
 
     if (!user || !user.active || !(await compare(password, user.passwordHash))) {

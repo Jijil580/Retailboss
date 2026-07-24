@@ -4,6 +4,8 @@ import {
   ArrowLeft,
   Check,
   ChevronDown,
+  Edit3,
+  KeyRound,
   LogOut,
   Plus,
   ShieldCheck,
@@ -46,6 +48,9 @@ export default function UsersClient({
   const [saving, setSaving] = useState(false);
   const [role, setRole] = useState<"admin" | "staff">("staff");
   const [permissions, setPermissions] = useState<string[]>(["create_sales"]);
+  const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
+  const [editRole, setEditRole] = useState<"admin" | "staff">("staff");
+  const [editPermissions, setEditPermissions] = useState<string[]>([]);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -100,6 +105,46 @@ export default function UsersClient({
     await loadUsers();
   }
 
+  function openEditUser(user: UserRecord) {
+    setEditingUser(user);
+    setEditRole(user.role);
+    setEditPermissions([...user.permissions]);
+    setError("");
+  }
+
+  async function updateUser(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editingUser) return;
+    setSaving(true);
+    setError("");
+    const form = new FormData(event.currentTarget);
+    const response = await fetch("/api/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: editingUser._id,
+        name: form.get("name"),
+        email: form.get("email"),
+        role: editRole,
+        permissions: editPermissions,
+        currentPassword: form.get("currentPassword"),
+        newPassword: form.get("newPassword"),
+      }),
+    });
+    const result = await response.json();
+    setSaving(false);
+    if (!response.ok) {
+      setError(result.error ?? "Unable to update user");
+      return;
+    }
+    setEditingUser(null);
+    if (result.requiresLogin) {
+      await logout();
+      return;
+    }
+    await loadUsers();
+  }
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     window.location.href = "/login";
@@ -147,9 +192,10 @@ export default function UsersClient({
                   <span className={`role-chip ${user.role}`}>{user.role}</span>
                   <span className={user.active ? "account-status active" : "account-status"}>{user.active ? "Active" : "Inactive"}</span>
                   <div className="user-permission-summary">{user.role === "admin" ? "Full access" : `${user.permissions.length} permissions`}</div>
-                  <button className="user-toggle" onClick={() => toggleUser(user)} disabled={user.email === currentUser.email}>
-                    {user.active ? "Deactivate" : "Activate"}
-                  </button>
+                  <div className="user-actions">
+                    <button className="user-edit" onClick={() => openEditUser(user)} aria-label={`Edit ${user.name}`}><Edit3 size={14} /></button>
+                    <button className="user-toggle" onClick={() => toggleUser(user)} disabled={user.email === currentUser.email}>{user.active ? "Deactivate" : "Activate"}</button>
+                  </div>
                 </article>
               ))}
             </div>
@@ -192,6 +238,45 @@ export default function UsersClient({
             )}
             {error && <div className="login-error">{error}</div>}
             <button className="login-submit" disabled={saving}>{saving ? "Creating..." : <><Plus size={17} /> Create user</>}</button>
+          </form>
+        </div>
+      )}
+
+      {editingUser && (
+        <div className="modal-backdrop" onMouseDown={() => setEditingUser(null)}>
+          <form className="user-form" onSubmit={updateUser} onMouseDown={(event) => event.stopPropagation()}>
+            <div className="user-form-head"><div><span>EDIT ACCOUNT</span><h2>{editingUser.email === currentUser.email ? "My account & password" : "Update user"}</h2></div><button type="button" onClick={() => setEditingUser(null)}><X size={19} /></button></div>
+            <label>Full name<input name="name" required minLength={2} defaultValue={editingUser.name} /></label>
+            <label>Email address<input name="email" required type="email" defaultValue={editingUser.email} /></label>
+            {editingUser.email !== currentUser.email && (
+              <label>Role
+                <span className="select-wrap">
+                  <select value={editRole} onChange={(event) => setEditRole(event.target.value as "admin" | "staff")}>
+                    <option value="staff">Staff user</option>
+                    <option value="admin">Administrator</option>
+                  </select>
+                  <ChevronDown size={16} />
+                </span>
+              </label>
+            )}
+            {editingUser.email !== currentUser.email && editRole === "staff" && (
+              <fieldset>
+                <legend>Permissions</legend>
+                <div className="permission-grid">
+                  {permissionOptions.map(([value, label]) => (
+                    <label key={value}>
+                      <input type="checkbox" checked={editPermissions.includes(value)} onChange={(event) => setEditPermissions(event.target.checked ? [...editPermissions, value] : editPermissions.filter((permission) => permission !== value))} />
+                      <span><Check size={13} />{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+            <div className="password-edit-heading"><KeyRound size={15} /><div><strong>{editingUser.email === currentUser.email ? "Change my password" : "Reset user password"}</strong><small>Leave the new password blank to keep the current password.</small></div></div>
+            {editingUser.email === currentUser.email && <label>Current password<input name="currentPassword" type="password" autoComplete="current-password" /></label>}
+            <label>New password<input name="newPassword" type="password" minLength={8} autoComplete="new-password" placeholder="At least 8 characters" /></label>
+            {error && <div className="login-error">{error}</div>}
+            <button className="login-submit" disabled={saving}>{saving ? "Saving..." : "Save account changes"}</button>
           </form>
         </div>
       )}
