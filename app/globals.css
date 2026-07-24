@@ -454,7 +454,7 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
 .data-empty { min-height: 330px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; color: #9294a2; font-size: 9px; text-align: center; }
 .data-empty strong { color: #272938; font-size: 12px; }
 .data-empty button, .data-empty a { margin-top: 7px; padding: 8px 11px; display: flex; align-items: center; gap: 5px; color: var(--primary); background: var(--primary-soft); border: 0; border-radius: 8px; font-size: 9px; font-weight: 700; text-decoration: none; cursor: pointer; }
-.product-table-header, .product-table article { display: grid; grid-template-columns: minmax(210px, 1.55fr) minmax(120px, .9fr) 100px 100px 80px 70px; align-items: center; gap: 12px; }
+.product-table-header, .product-table article { display: grid; grid-template-columns: minmax(210px, 1.55fr) minmax(120px, .9fr) 100px 100px 80px 105px; align-items: center; gap: 12px; }
 .product-table-header { min-height: 38px; padding: 0 18px; color: #9496a4; background: #fafafd; font-size: 8px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; }
 .product-table article { min-height: 66px; padding: 0 18px; color: #626474; border-top: 1px solid #ededf2; font-size: 9px; }
 .product-name-cell { display: flex; align-items: center; gap: 10px; }
@@ -475,6 +475,31 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
 .form-grid input, .form-grid select { height: 39px; }
 .form-grid textarea { min-height: 65px; padding-top: 10px; resize: vertical; }
 .form-grid input:focus, .form-grid textarea:focus, .form-grid select:focus { background: #fff; border-color: #8a7deb; box-shadow: 0 0 0 3px rgba(105,87,232,.09); }
+.barcode-input-row { margin-top: 6px; display: flex; gap: 6px; }
+.barcode-input-row input { min-width: 0; margin-top: 0; }
+.barcode-input-row button { height: 39px; padding: 0 10px; display: flex; align-items: center; gap: 5px; color: var(--primary); background: var(--primary-soft); border: 1px solid #d8d2f7; border-radius: 8px; font-size: 8.5px; font-weight: 800; cursor: pointer; }
+.barcode-field > small { margin-top: 5px; display: block; color: #898b9a; font-size: 7.5px; font-weight: 400; }
+.barcode-scanner-backdrop { z-index: 130; }
+.barcode-scanner-modal { width: min(92vw, 480px); margin: auto; padding: 22px; align-self: center; background: #fff; border-radius: 16px; box-shadow: 0 25px 70px rgba(12,13,25,.3); }
+.scanner-view { position: relative; height: 290px; display: grid; place-items: center; overflow: hidden; color: rgba(255,255,255,.7); background: #11131a; border-radius: 12px; }
+.scanner-view video { width: 100%; height: 100%; object-fit: cover; }
+.scanner-view > svg { position: absolute; bottom: 18px; right: 18px; }
+.scanner-target { position: absolute; inset: 50% auto auto 50%; width: 78%; height: 100px; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,.9); border-radius: 10px; box-shadow: 0 0 0 999px rgba(0,0,0,.32); }
+.scanner-target span { position: absolute; left: 8%; right: 8%; top: 50%; height: 2px; background: #ef5a6f; box-shadow: 0 0 8px #ef5a6f; animation: scan-line 1.8s ease-in-out infinite; }
+@keyframes scan-line { 0%, 100% { transform: translateY(-32px); } 50% { transform: translateY(32px); } }
+.barcode-scanner-modal > p { margin: 12px 0; color: #777989; font-size: 9px; line-height: 1.5; text-align: center; }
+.secondary-scanner-btn { width: 100%; height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--primary); background: var(--primary-soft); border: 0; border-radius: 8px; font-size: 9px; font-weight: 800; cursor: pointer; }
+.barcode-print-dialog { width: min(94vw, 760px); max-height: 92vh; margin: auto; padding: 22px; overflow-y: auto; align-self: center; background: #fff; border-radius: 16px; box-shadow: 0 25px 70px rgba(12,13,25,.28); }
+.barcode-print-controls { margin-bottom: 16px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.barcode-print-controls label { color: #555767; font-size: 9px; font-weight: 700; }
+.barcode-print-controls input { width: 100px; height: 36px; margin-top: 5px; padding: 0 9px; display: block; border: 1px solid #dedfe6; border-radius: 8px; }
+.barcode-print-controls button { height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 6px; color: #fff; background: var(--primary); border: 0; border-radius: 8px; font-size: 9px; font-weight: 800; cursor: pointer; }
+.barcode-print-sheet { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; background: #f5f6fa; border-radius: 10px; }
+.barcode-label { min-height: 125px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; color: #111; background: #fff; border: 1px dashed #bfc1ca; text-align: center; }
+.barcode-label > strong { font-size: 9px; text-transform: uppercase; letter-spacing: .5px; }
+.barcode-label > span { max-width: 100%; margin: 3px 0 1px; overflow: hidden; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.barcode-label svg { width: 100%; max-width: 190px; height: 72px; }
+.barcode-label > small { font-size: 8.5px; font-weight: 800; }
 
 .pos-layout { height: calc(100vh - 68px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 430px); }
 .pos-products { padding: 28px clamp(18px, 3vw, 38px); overflow-y: auto; }
@@ -738,4 +763,9 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
   .global-credit { display: none !important; }
   .invoice-sheet { width: 100%; min-height: auto; padding: 0; box-shadow: none; }
   .invoice-footer { margin-top: 65px; }
+  body.barcode-printing * { visibility: hidden !important; }
+  body.barcode-printing .barcode-print-sheet, body.barcode-printing .barcode-print-sheet * { visibility: visible !important; }
+  body.barcode-printing .barcode-print-sheet { position: absolute; inset: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 50mm); justify-content: start; align-content: start; gap: 3mm; background: #fff; }
+  body.barcode-printing .barcode-label { width: 50mm; height: 30mm; min-height: 30mm; padding: 2mm; break-inside: avoid; border: 1px dashed #999; }
+  body.barcode-printing .barcode-label svg { max-width: 46mm; height: 18mm; }
 }
