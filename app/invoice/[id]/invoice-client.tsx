@@ -28,6 +28,7 @@ type InvoiceSale = {
   status: string;
   createdAt: string;
   seller?: typeof DEFAULT_SHOP_SETTINGS;
+  customer?: { name?: string; mobile?: string };
 };
 
 const money = (value: number) =>
@@ -97,6 +98,8 @@ export default function InvoiceClient({ invoiceId }: { invoiceId: string }) {
         </header>
 
         <section className="invoice-meta">
+          <div><span>Customer</span><strong>{sale.customer?.name || "Walk-in customer"}</strong></div>
+          {sale.customer?.mobile && <div><span>Mobile</span><strong>{sale.customer.mobile}</strong></div>}
           <div><span>Payment</span><strong>{sale.paymentMode}</strong></div>
           <div><span>Status</span><strong>{sale.status}</strong></div>
           <div><span>Amount paid</span><strong>{money(sale.paid)}</strong></div>

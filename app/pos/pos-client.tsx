@@ -22,6 +22,8 @@ export default function PosClient() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [search, setSearch] = useState("");
   const [paymentMode, setPaymentMode] = useState("cash");
+  const [customerName, setCustomerName] = useState("");
+  const [customerMobile, setCustomerMobile] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -103,6 +105,8 @@ export default function PosClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         paymentMode,
+        customerName,
+        customerMobile,
         items: cart.map((item) => ({ productId: item._id, quantity: item.quantity })),
       }),
     });
@@ -113,6 +117,8 @@ export default function PosClient() {
       return;
     }
     setCart([]);
+    setCustomerName("");
+    setCustomerMobile("");
     setSuccess(`Sale ${result.sale.invoiceNumber} completed successfully`);
     setInvoiceId(result.sale._id);
     await loadProducts();
@@ -160,6 +166,10 @@ export default function PosClient() {
             </div>
           )}
           <div className="cart-bottom">
+            <div className="pos-customer-fields">
+              <label>Customer name<input value={customerName} onChange={(event) => setCustomerName(event.target.value)} placeholder="Walk-in customer" /></label>
+              <label>Mobile number<input value={customerMobile} onChange={(event) => setCustomerMobile(event.target.value)} placeholder="Optional" inputMode="tel" /></label>
+            </div>
             <label>Payment method<select value={paymentMode} onChange={(event) => setPaymentMode(event.target.value)}><option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option><option value="bank">Bank transfer</option><option value="credit">Credit</option></select></label>
             <div className="bill-mode-row">
               <span>{settings.gstEnabled ? "GST invoice" : "Non-GST bill"}</span>

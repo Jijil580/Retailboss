@@ -46,9 +46,46 @@ export async function GET(request: NextRequest) {
     if (!sale) return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     return NextResponse.json({ sale });
   }
-  const sales = await Sale.find({ shopId: session.shopId })
+  const query = request.nextUrl.searchParams.get("q")?.trim();
+  const from = request.nextUrl.searchParams.get("from");
+  const to = request.nextUrl.searchParams.get("to");
+  const month = request.nextUrl.searchParams.get("month");
+  const limit = Math.min(
+    1000,
+    Math.max(1, Number(request.nextUrl.searchParams.get("limit")) || 500),
+  );
+  const filters: Record<string, unknown>[] = [];
+  if (query) {
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const match = new RegExp(escaped, "i");
+    filters.push({
+      $or: [
+        { invoiceNumber: match },
+        { "items.name": match },
+        { "customer.name": match },
+        { "customer.mobile": match },
+      ],
+    });
+  }
+  let startDate = from ? new Date(`${from}T00:00:00`) : null;
+  let endDate = to ? new Date(`${to}T23:59:59.999`) : null;
+  if (month && /^\d{4}-\d{2}$/.test(month)) {
+    const [year, monthNumber] = month.split("-").map(Number);
+    startDate = new Date(year, monthNumber - 1, 1);
+    endDate = new Date(year, monthNumber, 0, 23, 59, 59, 999);
+  }
+  if (startDate && !Number.isNaN(startDate.getTime())) {
+    filters.push({ createdAt: { $gte: startDate } });
+  }
+  if (endDate && !Number.isNaN(endDate.getTime())) {
+    filters.push({ createdAt: { $lte: endDate } });
+  }
+  const sales = await Sale.find({
+    shopId: session.shopId,
+    ...(filters.length ? { $and: filters } : {}),
+  })
     .sort({ createdAt: -1 })
-    .limit(200)
+    .limit(limit)
     .lean();
   return NextResponse.json({ sales });
 }
@@ -62,6 +99,10 @@ export async function POST(request: NextRequest) {
   const paymentMode = ["cash", "upi", "card", "bank", "credit"].includes(body.paymentMode)
     ? body.paymentMode
     : "cash";
+  const customerName = String(body.customerName ?? "").trim().slice(0, 100);
+  const customerMobile = String(body.customerMobile ?? "")
+    .replace(/[^\d+]/g, "")
+    .slice(0, 16);
   if (requestedItems.length === 0) {
     return NextResponse.json({ error: "Add at least one product" }, { status: 400 });
   }
@@ -141,6 +182,10 @@ export async function POST(request: NextRequest) {
           {
             shopId: user.shopId,
             invoiceNumber,
+            customer: {
+              name: customerName || "Walk-in customer",
+              mobile: customerMobile,
+            },
             items,
             subtotal,
             discount: 0,
