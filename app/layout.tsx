@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { InstallAppButton } from "./install-app-button";
 import { MobileNav } from "./mobile-nav";
 import { RegisterServiceWorker } from "./register-service-worker";
 import "./globals.css";
@@ -32,6 +33,13 @@ export function generateMetadata(): Metadata {
       title: "Shape of You — Women’s Fashion",
       description,
     },
+    icons: {
+      icon: [
+        { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      ],
+      apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    },
   };
 }
 
@@ -45,6 +53,7 @@ export default function RootLayout({
       <body>
         {children}
         <MobileNav />
+        <InstallAppButton />
         <footer className="global-credit">
           Powered by <strong>Lumier Technologies</strong>
           <span>·</span>
