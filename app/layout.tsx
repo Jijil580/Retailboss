@@ -43,6 +43,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
+        <footer className="global-credit">
+          Powered by <strong>Lumier Technologies</strong>
+          <span>·</span>
+          © {new Date().getFullYear()} All rights reserved
+        </footer>
         <RegisterServiceWorker />
       </body>
     </html>

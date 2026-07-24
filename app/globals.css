@@ -16,6 +16,8 @@
 }
 
 * { box-sizing: border-box; }
+.global-credit { position: fixed; z-index: 80; right: 16px; bottom: 8px; padding: 6px 9px; display: flex; align-items: center; gap: 5px; color: #858797; background: rgba(255,255,255,.88); border: 1px solid rgba(222,223,230,.85); border-radius: 7px; box-shadow: 0 4px 14px rgba(28,30,47,.06); backdrop-filter: blur(8px); font-size: 7.5px; pointer-events: none; }
+.global-credit strong { color: #5f52c5; }
 html { background: var(--bg); }
 body { margin: 0; color: var(--text); background: var(--bg); font-family: Inter, "Segoe UI", Arial, sans-serif; }
 button, input { font: inherit; }
@@ -733,6 +735,7 @@ kbd { padding: 3px 6px; display: inline-flex; align-items: center; gap: 3px; col
   body { background: #fff !important; }
   .invoice-page { padding: 0; background: #fff; }
   .invoice-actions { display: none !important; }
+  .global-credit { display: none !important; }
   .invoice-sheet { width: 100%; min-height: auto; padding: 0; box-shadow: none; }
   .invoice-footer { margin-top: 65px; }
 }
