@@ -174,13 +174,20 @@ export default function DashboardClient({
   );
 
   const navigate = (label: string) => {
+    if (label === "Products" || label === "Inventory") {
+      window.location.href = "/products";
+      return;
+    }
+    if (label === "Sales") {
+      window.location.href = "/sales";
+      return;
+    }
     if (label === "Users & access") {
       window.location.href = "/users";
       return;
     }
     if (label === "Point of Sale") {
-      setPosOpen(true);
-      setMenuOpen(false);
+      window.location.href = "/pos";
       return;
     }
     setActive(label);
@@ -252,7 +259,7 @@ export default function DashboardClient({
             <div className="sync"><span /> All changes saved</div>
             <button className="icon-btn" onClick={() => setDark(!dark)} aria-label="Toggle color theme">{dark ? <Sun size={19} /> : <Moon size={19} />}</button>
             <button className="icon-btn has-alert" onClick={() => setToast("You have 3 inventory alerts")} aria-label="Notifications"><Bell size={19} /><span /></button>
-            <button className="primary-btn compact" onClick={() => setPosOpen(true)}><Plus size={17} /> New sale</button>
+            <button className="primary-btn compact" onClick={() => { window.location.href = "/pos"; }}><Plus size={17} /> New sale</button>
           </div>
         </header>
 
@@ -346,7 +353,7 @@ export default function DashboardClient({
                   {quickActions.map((action) => {
                     const Icon = action.icon;
                     return (
-                      <button key={action.label} onClick={() => action.label === "New sale" ? setPosOpen(true) : setToast(`${action.label} form opened`)}>
+                      <button key={action.label} onClick={() => action.label === "New sale" ? window.location.href = "/pos" : action.label === "Add product" ? window.location.href = "/products" : setToast(`${action.label} form opened`)}>
                         <span className={`quick-icon ${action.color}`}><Icon size={19} /></span>
                         <span><strong>{action.label}</strong><small>{action.hint}</small></span>
                         <ChevronRight size={16} />
@@ -360,7 +367,7 @@ export default function DashboardClient({
                 <article className="panel recent-sales">
                   <div className="panel-head">
                     <div><h2>Recent sales</h2><p>Latest invoices from today</p></div>
-                    <button className="text-btn" onClick={() => setActive("Sales")}>View all <ChevronRight size={15} /></button>
+                    <button className="text-btn" onClick={() => { window.location.href = "/sales"; }}>View all <ChevronRight size={15} /></button>
                   </div>
                   <div className="sales-table">
                     {sales.length === 0 ? (
@@ -393,7 +400,7 @@ export default function DashboardClient({
                       </div>
                     ))}
                   </div>
-                  <button className="stock-cta" onClick={() => setActive("Inventory")}>Review inventory <ChevronRight size={16} /></button>
+                  <button className="stock-cta" onClick={() => { window.location.href = "/products"; }}>Review inventory <ChevronRight size={16} /></button>
                 </article>
               </section>
             </>
@@ -406,8 +413,8 @@ export default function DashboardClient({
           <div className="search-modal" onMouseDown={(e) => e.stopPropagation()}>
             <div className="command-input"><Search size={20} /><input autoFocus placeholder="Search products, customers, invoices..." /><kbd>ESC</kbd></div>
             <p>QUICK LINKS</p>
-            <button onClick={() => { setSearchOpen(false); setPosOpen(true); }}><ScanLine size={18} /><span><strong>Open Point of Sale</strong><small>Create a new bill</small></span><span>F2</span></button>
-            <button onClick={() => { setSearchOpen(false); setActive("Products"); }}><Box size={18} /><span><strong>Browse products</strong><small>0 active products</small></span><ChevronRight size={16} /></button>
+            <button onClick={() => { window.location.href = "/pos"; }}><ScanLine size={18} /><span><strong>Open Point of Sale</strong><small>Create a new bill</small></span><span>F2</span></button>
+            <button onClick={() => { window.location.href = "/products"; }}><Box size={18} /><span><strong>Browse products</strong><small>Manage catalog and inventory</small></span><ChevronRight size={16} /></button>
             <button onClick={() => { setSearchOpen(false); setActive("Customers"); }}><UsersRound size={18} /><span><strong>Find a customer</strong><small>Search by name or mobile</small></span><ChevronRight size={16} /></button>
           </div>
         </div>
