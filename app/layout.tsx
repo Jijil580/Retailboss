@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MobileNav } from "./mobile-nav";
 import { RegisterServiceWorker } from "./register-service-worker";
 import "./globals.css";
 
@@ -43,6 +44,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
+        <MobileNav />
         <footer className="global-credit">
           Powered by <strong>Lumier Technologies</strong>
           <span>·</span>
