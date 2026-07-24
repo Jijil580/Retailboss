@@ -215,6 +215,14 @@ export default function DashboardClient({
       window.location.href = "/sales";
       return;
     }
+    if (label === "Purchases") {
+      window.location.href = "/purchases";
+      return;
+    }
+    if (label === "Suppliers") {
+      window.location.href = "/suppliers";
+      return;
+    }
     if (label === "Users & access") {
       window.location.href = "/users";
       return;
@@ -385,7 +393,7 @@ export default function DashboardClient({
                   {quickActions.map((action) => {
                     const Icon = action.icon;
                     return (
-                      <button key={action.label} onClick={() => action.label === "New sale" ? window.location.href = "/pos" : action.label === "Add product" ? window.location.href = "/products" : setToast(`${action.label} form opened`)}>
+                      <button key={action.label} onClick={() => action.label === "New sale" ? window.location.href = "/pos" : action.label === "Add product" ? window.location.href = "/products" : action.label === "New purchase" ? window.location.href = "/purchases" : setToast(`${action.label} form opened`)}>
                         <span className={`quick-icon ${action.color}`}><Icon size={19} /></span>
                         <span><strong>{action.label}</strong><small>{action.hint}</small></span>
                         <ChevronRight size={16} />

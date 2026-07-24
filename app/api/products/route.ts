@@ -40,8 +40,16 @@ function productFields(body: Record<string, unknown>) {
 }
 
 export async function GET(request: NextRequest) {
-  const session = await requireUser("view_inventory");
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  const canViewProducts =
+    session.role === "admin" ||
+    ["view_inventory", "manage_products", "manage_suppliers", "create_sales"].some(
+      (permission) => session.permissions.includes(permission),
+    );
+  if (!canViewProducts) {
+    return NextResponse.json({ error: "Inventory access required" }, { status: 403 });
+  }
 
   try {
     await connectMongo();
