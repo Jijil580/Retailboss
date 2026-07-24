@@ -7,7 +7,7 @@ const ShopSettingsSchema = new Schema(
     legalName: { type: String, trim: true, default: "Shape of You" },
     address: { type: String, trim: true, default: "" },
     city: { type: String, trim: true, default: "" },
-    state: { type: String, trim: true, default: "Karnataka" },
+    state: { type: String, trim: true, default: "Kerala" },
     pincode: { type: String, trim: true, default: "" },
     phone: { type: String, trim: true, default: "" },
     email: { type: String, trim: true, lowercase: true, default: "" },

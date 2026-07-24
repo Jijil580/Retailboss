@@ -82,7 +82,7 @@ export default function PurchasesClient() {
     gstNumber: "",
     address: "",
     city: "",
-    state: "Karnataka",
+    state: "Kerala",
     pincode: "",
   });
   const [supplierBillNumber, setSupplierBillNumber] = useState("");
@@ -161,7 +161,7 @@ export default function PurchasesClient() {
       return;
     }
     setSupplierId(suppliers.length ? "" : "__new__");
-    setNewSupplier({ name: "", contactPerson: "", phone: "", email: "", gstNumber: "", address: "", city: "", state: "Karnataka", pincode: "" });
+    setNewSupplier({ name: "", contactPerson: "", phone: "", email: "", gstNumber: "", address: "", city: "", state: "Kerala", pincode: "" });
     setSupplierBillNumber("");
     setPurchaseDate(todayValue());
     setPaymentMode("cash");

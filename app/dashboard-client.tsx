@@ -275,7 +275,7 @@ export default function DashboardClient({
 
         <div className="shop-switcher">
           <div className="shop-avatar"><Store size={18} /></div>
-          <div><strong>Shape of You</strong><small>Women’s Fashion · Bengaluru</small></div>
+          <div><strong>Shape of You</strong><small>Women’s Fashion · Iritty, Kannur, Kerala</small></div>
           <ChevronDown size={16} />
         </div>
 

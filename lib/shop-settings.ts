@@ -2,8 +2,8 @@ export const DEFAULT_SHOP_SETTINGS = {
   brandName: "Shape of You",
   legalName: "Shape of You",
   address: "",
-  city: "Bengaluru",
-  state: "Karnataka",
+  city: "Iritty, Kannur",
+  state: "Kerala",
   pincode: "",
   phone: "",
   email: "",
@@ -27,8 +27,8 @@ export function cleanShopSettings(
   );
 
   return {
-    brandName: text("brandName", 80) || "Shape of You",
-    legalName: text("legalName", 120) || text("brandName", 80) || "Shape of You",
+    brandName: "Shape of You",
+    legalName: text("legalName", 120) || "Shape of You",
     address: text("address", 240),
     city: text("city", 80),
     state: text("state", 80),

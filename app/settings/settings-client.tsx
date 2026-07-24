@@ -82,8 +82,8 @@ export default function SettingsClient() {
                 <div><h2>Company details</h2><p>These details are printed on every new invoice.</p></div>
               </div>
               <div className="form-grid">
-                <label>Brand name<input value={settings.brandName} onChange={(event) => update("brandName", event.target.value)} required /></label>
-                <label>Legal company name<input value={settings.legalName} onChange={(event) => update("legalName", event.target.value)} required /></label>
+                <label>Fixed brand<input value="Shape of You" disabled /></label>
+                <label>Billing / legal company name<input value={settings.legalName} onChange={(event) => update("legalName", event.target.value)} required /></label>
                 <label className="wide">Address<input value={settings.address} onChange={(event) => update("address", event.target.value)} placeholder="Shop / building / street" /></label>
                 <label>City<input value={settings.city} onChange={(event) => update("city", event.target.value)} /></label>
                 <label>State<input value={settings.state} onChange={(event) => update("state", event.target.value)} /></label>

@@ -38,7 +38,7 @@ const emptySupplier: Partial<SupplierRecord> = {
   gstNumber: "",
   address: "",
   city: "",
-  state: "Karnataka",
+  state: "Kerala",
   pincode: "",
   openingBalance: 0,
 };
